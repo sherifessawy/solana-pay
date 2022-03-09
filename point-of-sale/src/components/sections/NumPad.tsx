@@ -5,6 +5,7 @@ import { usePayment } from '../../hooks/usePayment';
 import { Digits } from '../../types';
 import { BackspaceIcon } from '../images/BackspaceIcon';
 import * as css from './NumPad.module.pcss';
+import {useSearchParams} from 'react-router-dom';
 
 interface NumPadInputButton {
     input: Digits | '.';
@@ -24,7 +25,11 @@ export const NumPad: FC = () => {
     const { symbol, decimals } = useConfig();
     const regExp = useMemo(() => new RegExp('^\\d*([.,]\\d{0,' + decimals + '})?$'), [decimals]);
 
-    const [value, setValue] = useState('0');
+    const [searchParams, setSearchParams] = useSearchParams(); //react-router-dom hook to grab url data
+
+    const initialAmount = isNaN(Number(searchParams.get("amount"))) ? '0' : searchParams.get("amount") //checks that the type of the "amount" in the query string (url) is a number. It will set its value to zero incase of its type is NaN
+
+    const [value, setValue] = useState(initialAmount || '0'); //initialize value to 'initialAmount'. If no amount in URL, it will be initialized to '0'
     const onInput = useCallback(
         (key) =>
             setValue((value) => {
