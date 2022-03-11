@@ -23,7 +23,6 @@ export interface PaymentProviderProps {
 
 export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const { connection } = useConnection();
-    const [searchParams, setSearchParams] = useSearchParams(); //react-route-dom hook to grab URL values
 
     //recipient is availbe once url is loaded. 
     const { recipient, splToken, label, requiredConfirmations, connectWallet } = useConfig();
@@ -39,6 +38,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const navigate = useNavigateWithQuery();
     const progress = useMemo(() => confirmations / requiredConfirmations, [confirmations, requiredConfirmations]);
 
+    const [searchParams] = useSearchParams(); //react-route-dom hook to grab URL values
     const [recipient1, setRecipient1] =  useState(searchParams.get('recipient1') || undefined) //grapping recipient1 value from the url. if recipient1 is not present in the url loaded variable will be set to undefined.
     const [percent, setPercent] =  useState(searchParams.get('percent') || undefined)
     const [percent1, setPercent1] =  useState(searchParams.get('percent1') || undefined)
@@ -51,17 +51,17 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         if(searchParams.get('id')){
             const encryptedURL: string = searchParams.get('id') || 'null'
             const decryptedURL = atob(encryptedURL) //decrypt the url
-            const params = new URLSearchParams(decryptedURL); //creating new URLsearchParams to allow searching the URL
+            const decryptedURLparams = new URLSearchParams(decryptedURL); //creating new URLsearchParams to allow searching the URL
             
-            if(params.get('amount')) setAmount(new BigNumber(Number(params.get('amount')))) //assigning value if exists
-            setMessage(params.get('message') || undefined) //assigning value if exists
-            setMemo(params.get('memo') || undefined) //assigning value if exists
-            setRecipient1(params.get('recipient1') || undefined) //assigning value if exists
-            setPercent(params.get('percent') || undefined) //assigning value if exists
-            setPercent1(params.get('percent1') || undefined) //assigning value if exists
-            setSecret(params.get('secret') || undefined) //assigning value if exists
-            setReferenceNew(params.get('reference') || undefined) //assigning value if exists
-            setSpltokenNew(params.get('spl-token') || undefined) //assigning value if exists
+            if(decryptedURLparams.get('amount')) setAmount(new BigNumber(Number(decryptedURLparams.get('amount')))) //assigning value if exists
+            setMessage(decryptedURLparams.get('message') || undefined) //assigning value if exists
+            setMemo(decryptedURLparams.get('memo') || undefined) //assigning value if exists
+            setRecipient1(decryptedURLparams.get('recipient1') || undefined) //assigning value if exists
+            setPercent(decryptedURLparams.get('percent') || undefined) //assigning value if exists
+            setPercent1(decryptedURLparams.get('percent1') || undefined) //assigning value if exists
+            setSecret(decryptedURLparams.get('secret') || undefined) //assigning value if exists
+            setReferenceNew(decryptedURLparams.get('reference') || undefined) //assigning value if exists
+            setSpltokenNew(decryptedURLparams.get('spl-token') || undefined) //assigning value if exists
         } else{ //url is not encrypted
             if(searchParams.get('amount')) setAmount(new BigNumber(Number(searchParams.get('amount')))) //assigning value if exists
             setMessage(searchParams.get('message') || undefined) //assigning value if exists

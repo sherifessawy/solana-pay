@@ -27,9 +27,31 @@ export const RootRoute: FC = () => {
     const { recipient, label } = useMemo(() => {
         let recipient: PublicKey | undefined, label: string | undefined;
 
-        const recipientParam = params.get('recipient');
-        const labelParam = params.get('label');
+        let recipientParam = params.get('recipient');
+        let labelParam = params.get('label');
+
+        if (!recipientParam || !labelParam){
+            //url is encrypted 
+            const encryptedURL = params.get('id') || 'null'
+            const decryptedURL = atob(encryptedURL) //decrypt the url
+            const decryptedURLparams = new URLSearchParams(decryptedURL); //creating new URLsearchParams to allow searching the URL
+            
+            recipientParam = decryptedURLparams.get('recipient')
+            labelParam = decryptedURLparams.get('label')
+            
+            if (recipientParam && labelParam) {
+                try {
+                    recipient = new PublicKey(recipientParam);
+                    label = labelParam;
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+
+        }
+
         if (recipientParam && labelParam) {
+            //recipient and label are available in the url
             try {
                 recipient = new PublicKey(recipientParam);
                 label = labelParam;
