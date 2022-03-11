@@ -28,8 +28,20 @@ export const NumPad: FC = () => {
     const [searchParams, setSearchParams] = useSearchParams(); //react-router-dom hook to grab url data
 
     const initialAmount = isNaN(Number(searchParams.get("amount"))) ? '0' : searchParams.get("amount") //checks that the type of the "amount" in the query string (url) is a number. It will set its value to zero incase of its type is NaN
+    
+    const [value, setValue] = useState(initialAmount || '0'); // initialize value to 'initialAmount'. If no amount in URL, it will be initialized to '0'
+    
+    useEffect(() => {
+        //if the URL encrypted, it will have 'id' param in it.
+        if(searchParams.get('id')){
+            const encryptedURL: string = searchParams.get('id') || 'null'
+            const decryptedURL = atob(encryptedURL) //decrypt the url
+            const params = new URLSearchParams(decryptedURL); //creating new URLsearchParams to allow searching the URL
+            if(params.get('amount')) setValue(params.get('amount') || '0') //assigning value if exists
+        }
+    }, [searchParams.get('id')])
 
-    const [value, setValue] = useState(initialAmount || '0'); //initialize value to 'initialAmount'. If no amount in URL, it will be initialized to '0'
+    
     const onInput = useCallback(
         (key) =>
             setValue((value) => {

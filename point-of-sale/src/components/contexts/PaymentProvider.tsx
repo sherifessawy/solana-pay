@@ -47,25 +47,25 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const [spltokenNew, setSpltokenNew] =  useState(searchParams.get('spl-token') || undefined)
 
     useEffect(() => {
-        //if the URL encrypted, it will have 'id' param in it
+        //if the URL encrypted, it will have 'id' param in it.
         if(searchParams.get('id')){
             const encryptedURL: string = searchParams.get('id') || 'null'
             const decryptedURL = atob(encryptedURL) //decrypt the url
             const params = new URLSearchParams(decryptedURL); //creating new URLsearchParams to allow searching the URL
-
+            
             if(params.get('amount')) setAmount(new BigNumber(Number(params.get('amount')))) //assigning value if exists
-            if(params.get('message')) setMessage(params.get('message') || undefined) //assigning value if exists
-            if(params.get('memo')) setMemo(params.get('memo') || undefined) //assigning value if exists
-            if(params.get('recipient1')) setRecipient1(params.get('recipient1') || undefined) //assigning value if exists
-            if(params.get('percent')) setPercent(params.get('percent') || undefined) //assigning value if exists
-            if(params.get('percent1')) setPercent1(params.get('percent1') || undefined) //assigning value if exists
-            if(params.get('secret')) setSecret(params.get('secret') || undefined) //assigning value if exists
-            if(params.get('reference')) setReferenceNew(params.get('reference') || undefined) //assigning value if exists
-            if(params.get('spl-token')) setSpltokenNew(params.get('spl-token') || undefined) //assigning value if exists
+            setMessage(params.get('message') || undefined) //assigning value if exists
+            setMemo(params.get('memo') || undefined) //assigning value if exists
+            setRecipient1(params.get('recipient1') || undefined) //assigning value if exists
+            setPercent(params.get('percent') || undefined) //assigning value if exists
+            setPercent1(params.get('percent1') || undefined) //assigning value if exists
+            setSecret(params.get('secret') || undefined) //assigning value if exists
+            setReferenceNew(params.get('reference') || undefined) //assigning value if exists
+            setSpltokenNew(params.get('spl-token') || undefined) //assigning value if exists
         } else{ //url is not encrypted
             if(searchParams.get('amount')) setAmount(new BigNumber(Number(searchParams.get('amount')))) //assigning value if exists
-            if(searchParams.get('message')) setMessage(searchParams.get('message') || undefined) //assigning value if exists
-            if(searchParams.get('memo')) setMemo(searchParams.get('memo') || undefined) //assigning value if exists
+            setMessage(searchParams.get('message') || undefined) //assigning value if exists
+            setMemo(searchParams.get('memo') || undefined) //assigning value if exists
         }
     }, [searchParams.get('id')])
 
