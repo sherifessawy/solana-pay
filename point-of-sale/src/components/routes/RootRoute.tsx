@@ -33,13 +33,9 @@ export const RootRoute: FC = () => {
         if (!recipientParam || !labelParam){
             //url is encrypted 
             let decryptedURL = ''
-            //the URL might be encrypted in one of three ways   
-            if (params.get('id')){
-                // case #1, "id" present in the url
-                const encryptedURL = params.get('id') || 'null' // get value of encrypted url
-                decryptedURL = atob(encryptedURL) //decrypt the url
-            } else if(window.location.search && !params.get('id') && window.location.search.split("/charges/").length !== 2 && !params.get('recipient')){
-                // case #2, passed in query string with no parameters (i.e. no "id" in the url)
+            //the URL might be encrypted in one of two ways   
+            if(window.location.search && window.location.search.split("/charges/").length !== 2 && !params.get('recipient')){
+                // case #2, passed in query string with no parameters
                 const encryptedURL = window.location.search.split('?')[1];
                 decryptedURL = atob(encryptedURL) //decrypt the url
             } else if (window.location.search.split("/charges/").length === 2){
@@ -47,7 +43,7 @@ export const RootRoute: FC = () => {
                 const encryptedURL = window.location.search.split("/charges/")[1];
                 decryptedURL = atob(encryptedURL) //decrypt the url
             } else {
-                console.log('url passed incorrectly')
+                console.log('url passed is not as expected')
             }
 
             const decryptedURLparams = new URLSearchParams(decryptedURL); //creating new URLsearchParams to allow searching the URL
