@@ -40,17 +40,30 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
     const [searchParams] = useSearchParams(); //react-route-dom hook to grab URL values
     const [recipient1, setRecipient1] =  useState(searchParams.get('recipient1') || undefined) //grapping recipient1 value from the url. if recipient1 is not present in the url loaded variable will be set to undefined.
-    const [percent, setPercent] =  useState(searchParams.get('percent') || undefined)
-    const [percent1, setPercent1] =  useState(searchParams.get('percent1') || undefined)
-    const [secret, setSecret] =  useState(searchParams.get('secret') || undefined)
-    const [referenceNew, setReferenceNew] =  useState(searchParams.get('reference') || undefined)
-    const [spltokenNew, setSpltokenNew] =  useState(searchParams.get('spl-token') || undefined)
-
+    const [percent, setPercent] =  useState(searchParams.get('percent') || undefined) //grapping recipient1 value from the url.
+    const [percent1, setPercent1] =  useState(searchParams.get('percent1') || undefined) //grapping recipient1 value from the url.
+    const [secret, setSecret] =  useState(searchParams.get('secret') || undefined) //grapping recipient1 value from the url.
+    const [referenceNew, setReferenceNew] =  useState(searchParams.get('reference') || undefined) //grapping recipient1 value from the url.
+    const [spltokenNew, setSpltokenNew] =  useState(searchParams.get('spl-token') || undefined) //grapping recipient1 value from the url.
+    console.log('s')
     useEffect(() => {
-        //if the URL encrypted, it will have 'id' param in it.
-        if(searchParams.get('id')){
-            const encryptedURL: string = searchParams.get('id') || 'null'
-            const decryptedURL = atob(encryptedURL) //decrypt the url
+        if(searchParams.get('id') || (window.location.search && !searchParams.get('recipient')) || window.location.href.split("/charges/)").length > 1 ){
+            let decryptedURL = ''
+            //the URL might be encrypted in one of three ways   
+            if (searchParams.get('id')){
+                // case #1, "id" present in the url
+                const encryptedURL: string = searchParams.get('id') || 'null'
+                decryptedURL = atob(encryptedURL) //decrypt the url
+            } else if(window.location.search && !searchParams.get('id') && window.location.search.split("/charges/").length !== 2){
+                // case #2, passed in query string with no parameters (i.e. no "id" in the url)
+                const encryptedURL = window.location.search.split('?')[1];
+                decryptedURL = atob(encryptedURL) //decrypt the url
+            } else if (window.location.search.split("/charges/").length === 2 ){
+                // case #3, encrypted url is passed after "/charges/"
+                const encryptedURL = window.location.search.split("/charges/")[1];
+                decryptedURL = atob(encryptedURL) //decrypt the url
+            }
+            
             const decryptedURLparams = new URLSearchParams(decryptedURL); //creating new URLsearchParams to allow searching the URL
             
             if(decryptedURLparams.get('amount')) setAmount(new BigNumber(Number(decryptedURLparams.get('amount')))) //assigning value if exists
@@ -68,7 +81,10 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             setMemo(searchParams.get('memo') || undefined) //assigning value if exists
         }
     }, [searchParams.get('id')])
-
+    console.log(memo)
+    console.log(secret)
+    console.log(referenceNew)
+    console.log(spltokenNew)
     const url = useMemo(
         () =>
             encodeURL({

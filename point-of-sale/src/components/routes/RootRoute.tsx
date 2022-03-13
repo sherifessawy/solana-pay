@@ -32,14 +32,31 @@ export const RootRoute: FC = () => {
 
         if (!recipientParam || !labelParam){
             //url is encrypted 
-            const encryptedURL = params.get('id') || 'null'
-            const decryptedURL = atob(encryptedURL) //decrypt the url
+            let decryptedURL = ''
+            //the URL might be encrypted in one of three ways   
+            if (params.get('id')){
+                // case #1, "id" present in the url
+                const encryptedURL = params.get('id') || 'null' // get value of encrypted url
+                decryptedURL = atob(encryptedURL) //decrypt the url
+            } else if(window.location.search && !params.get('id') && window.location.search.split("/charges/").length !== 2 && !params.get('recipient')){
+                // case #2, passed in query string with no parameters (i.e. no "id" in the url)
+                const encryptedURL = window.location.search.split('?')[1];
+                decryptedURL = atob(encryptedURL) //decrypt the url
+            } else if (window.location.search.split("/charges/").length === 2){
+                // case #3, no query string and all encrypted url passed after ("/charges/")
+                const encryptedURL = window.location.search.split("/charges/")[1];
+                decryptedURL = atob(encryptedURL) //decrypt the url
+            } else {
+                console.log('url passed incorrectly')
+            }
+
             const decryptedURLparams = new URLSearchParams(decryptedURL); //creating new URLsearchParams to allow searching the URL
-            
-            recipientParam = decryptedURLparams.get('recipient')
-            labelParam = decryptedURLparams.get('label')
+
+            recipientParam = decryptedURLparams.get('recipient') // grabbing value of recipient from the url
+            labelParam = decryptedURLparams.get('label') // grabbing value of label from the url
             
             if (recipientParam && labelParam) {
+                //assigning url values to recipient and label
                 try {
                     recipient = new PublicKey(recipientParam);
                     label = labelParam;

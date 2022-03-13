@@ -25,20 +25,30 @@ export const NumPad: FC = () => {
     const { symbol, decimals } = useConfig();
     const regExp = useMemo(() => new RegExp('^\\d*([.,]\\d{0,' + decimals + '})?$'), [decimals]);
 
-    const [searchParams, setSearchParams] = useSearchParams(); //react-router-dom hook to grab url data
-
+    const [searchParams] = useSearchParams(); //react-router-dom hook to grab url data
     const initialAmount = isNaN(Number(searchParams.get("amount"))) ? '0' : searchParams.get("amount") //checks that the type of the "amount" in the query string (url) is a number. It will set its value to zero incase of its type is NaN
-    
     const [value, setValue] = useState(initialAmount || '0'); // initialize value to 'initialAmount'. If no amount in URL, it will be initialized to '0'
     
     useEffect(() => {
-        //if the URL encrypted, it will have 'id' param in it.
+        //the URL might be encrypted in one of three ways 
+        let decryptedURL = ''
         if(searchParams.get('id')){
+            // case #1, "id" present in the url
             const encryptedURL: string = searchParams.get('id') || 'null'
-            const decryptedURL = atob(encryptedURL) //decrypt the url
-            const params = new URLSearchParams(decryptedURL); //creating new URLsearchParams to allow searching the URL
-            if(params.get('amount')) setValue(params.get('amount') || '0') //assigning value if exists
+            decryptedURL = atob(encryptedURL) //decrypt the url
+        } else if(window.location.search && !searchParams.get('id') && window.location.search.split("/charges/").length !== 2 && !searchParams.get('recipient')){
+            // case #2, passed in query string with no parameters (i.e. no "id" in the url)
+            const encryptedURL = window.location.search.split('?')[1];
+            decryptedURL = atob(encryptedURL) //decrypt the url
+        } else if (window.location.search.split("/charges/").length === 2){
+            // case #3, no query string and all encrypted url passed after ("/charges/")
+            const encryptedURL = window.location.search.split("/charges/")[1];
+            decryptedURL = atob(encryptedURL) //decrypt the url
         }
+
+        const decryptedURLParams = new URLSearchParams(decryptedURL); //creating new URLsearchParams to allow searching the URL
+        if(decryptedURLParams.get('amount')) setValue(decryptedURLParams.get('amount') || '0') //assigning value if exists
+
     }, [searchParams.get('id')])
 
     
