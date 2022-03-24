@@ -27,6 +27,8 @@ export interface PaymentContextState {
     url: string;
     reset(): void;
     generate(): void;
+    postData: Function;
+    redirect: boolean;
 }
 
 export const PaymentContext = createContext<PaymentContextState>({} as PaymentContextState);

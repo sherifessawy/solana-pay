@@ -24,6 +24,7 @@
         "@solana/wallet-adapter-react-ui": "^0.9.5",
         "@solana/wallet-adapter-wallets": "^0.15.4",
         "@solana/web3.js": "^1.32.0",
+        "axios": "^0.26.1",
         "bignumber.js": "^9.0.2",
         "clsx": "^1.1.1",
         "color-interpolate": "^1.0.5",

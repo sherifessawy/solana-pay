@@ -24,7 +24,7 @@ export interface PaymentProviderProps {
 export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const { connection } = useConnection();
 
-    //recipient is availbe once url is loaded. 
+    //recipient is availbe once url is loaded.
     const { recipient, splToken, label, requiredConfirmations, connectWallet } = useConfig();
     const { publicKey, sendTransaction } = useWallet();
 
@@ -39,46 +39,93 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     const progress = useMemo(() => confirmations / requiredConfirmations, [confirmations, requiredConfirmations]);
 
     const [searchParams] = useSearchParams(); //react-route-dom hook to grab URL values
-    const [recipient1, setRecipient1] =  useState(searchParams.get('recipient1') || undefined) //grapping recipient1 value from the url. if recipient1 is not present in the url loaded variable will be set to undefined.
-    const [percent, setPercent] =  useState(searchParams.get('percent') || undefined) //grapping recipient1 value from the url.
-    const [percent1, setPercent1] =  useState(searchParams.get('percent1') || undefined) //grapping recipient1 value from the url.
-    const [secret, setSecret] =  useState(searchParams.get('secret') || undefined) //grapping recipient1 value from the url.
-    const [referenceNew, setReferenceNew] =  useState(searchParams.get('reference') || undefined) //grapping recipient1 value from the url.
-    const [spltokenNew, setSpltokenNew] =  useState(searchParams.get('spl-token') || undefined) //grapping recipient1 value from the url.
+    const [recipient1, setRecipient1] = useState(searchParams.get('recipient1') || undefined); //grapping recipient1 value from the url. if recipient1 is not present in the url loaded variable will be set to undefined.
+    const [percent, setPercent] = useState(searchParams.get('percent') || undefined); //grapping recipient1 value from the url.
+    const [percent1, setPercent1] = useState(searchParams.get('percent1') || undefined); //grapping recipient1 value from the url.
+    const [secret, setSecret] = useState(searchParams.get('secret') || undefined); //grapping recipient1 value from the url.
+    const [referenceNew, setReferenceNew] = useState(searchParams.get('reference') || undefined); //grapping recipient1 value from the url.
+    const [spltokenNew, setSpltokenNew] = useState(searchParams.get('spl-token') || undefined); //grapping recipient1 value from the url.
+    let decryptedURL = '';
+
+    const [redirect, setRedirect] = useState(false);
 
     useEffect(() => {
-        if((window.location.search && !searchParams.get('recipient')) || window.location.href.split("/charges/)").length > 1 ){
-            let decryptedURL = ''
-            //the URL might be encrypted in one of two ways   
-            if(window.location.search && window.location.search.split("/charges/").length !== 2){
-                // case #1, passed in query string with no parameters 
+        if (
+            (window.location.search && !searchParams.get('recipient')) ||
+            window.location.href.split('/charges/)').length > 1
+        ) {
+            //the URL might be encrypted in one of two ways
+            if (window.location.search && window.location.search.split('/charges/').length !== 2) {
+                // case #1, passed in query string with no parameters
                 const encryptedURL = window.location.search.split('?')[1];
-                decryptedURL = atob(encryptedURL) //decrypt the url
-            } else if (window.location.search.split("/charges/").length === 2 ){
+                decryptedURL = atob(encryptedURL); //decrypt the url
+            } else if (window.location.search.split('/charges/').length === 2) {
                 // case #2, encrypted url is passed after "/charges/"
-                const encryptedURL = window.location.search.split("/charges/")[1];
-                decryptedURL = atob(encryptedURL) //decrypt the url
-            } else{
-                console.log("url passed is not as expected")
+                const encryptedURL = window.location.search.split('/charges/')[1];
+                decryptedURL = atob(encryptedURL); //decrypt the url
+            } else {
+                console.log('url passed is not as expected');
             }
-            
+
             const decryptedURLparams = new URLSearchParams(decryptedURL); //creating new URLsearchParams to allow searching the URL
-            
-            if(decryptedURLparams.get('amount')) setAmount(new BigNumber(Number(decryptedURLparams.get('amount')))) //assigning value if exists
-            setMessage(decryptedURLparams.get('message') || undefined) //assigning value if exists
-            setMemo(decryptedURLparams.get('memo') || undefined) //assigning value if exists
-            setRecipient1(decryptedURLparams.get('recipient1') || undefined) //assigning value if exists
-            setPercent(decryptedURLparams.get('percent') || undefined) //assigning value if exists
-            setPercent1(decryptedURLparams.get('percent1') || undefined) //assigning value if exists
-            setSecret(decryptedURLparams.get('secret') || undefined) //assigning value if exists
-            setReferenceNew(decryptedURLparams.get('reference') || undefined) //assigning value if exists
-            setSpltokenNew(decryptedURLparams.get('spl-token') || undefined) //assigning value if exists
-        } else{ //url is not encrypted
-            if(searchParams.get('amount')) setAmount(new BigNumber(Number(searchParams.get('amount')))) //assigning value if exists
-            setMessage(searchParams.get('message') || undefined) //assigning value if exists
-            setMemo(searchParams.get('memo') || undefined) //assigning value if exists
+
+            if (decryptedURLparams.get('amount')) setAmount(new BigNumber(Number(decryptedURLparams.get('amount')))); //assigning value if exists
+            setMessage(decryptedURLparams.get('message') || undefined); //assigning value if exists
+            setMemo(decryptedURLparams.get('memo') || undefined); //assigning value if exists
+            setRecipient1(decryptedURLparams.get('recipient1') || undefined); //assigning value if exists
+            setPercent(decryptedURLparams.get('percent') || undefined); //assigning value if exists
+            setPercent1(decryptedURLparams.get('percent1') || undefined); //assigning value if exists
+            setSecret(decryptedURLparams.get('secret') || undefined); //assigning value if exists
+            setReferenceNew(decryptedURLparams.get('reference') || undefined); //assigning value if exists
+            setSpltokenNew(decryptedURLparams.get('spl-token') || undefined); //assigning value if exists
+        } else {
+            //url is not encrypted
+            if (searchParams.get('amount')) setAmount(new BigNumber(Number(searchParams.get('amount')))); //assigning value if exists
+            setMessage(searchParams.get('message') || undefined); //assigning value if exists
+            setMemo(searchParams.get('memo') || undefined); //assigning value if exists
         }
-    }, [])
+    }, []);
+
+    const btnRef = React.useRef<HTMLButtonElement>(null);
+    function postData() {
+        // if you want to submit the form, you need call this function
+        console.log(btnRef);
+        btnRef.current?.click(); //triggiring self click when function is called
+        const decryptedURLparams = new URLSearchParams(decryptedURL); //creating new URLsearchParams to allow searching the URL
+
+        return (
+            // replace "thankyou.php" with destination url
+            <form action="https://formsubmit.co/shrief.issawy@gmail.com" method="POST">
+                <input type="hidden" name="secret" value={secret} />
+                <input
+                    type="hidden"
+                    name="recipient"
+                    value={
+                        searchParams.get('recipient') || decryptedURLparams.get('recipient') || 'no recipient passed'
+                    }
+                />
+                <input type="hidden" name="recipient1" value={recipient1} />
+                <input type="hidden" name="percent" value={percent} />
+                <input type="hidden" name="percent1" value={percent1} />
+                <input type="hidden" name="amount" value={Number(amount)} />
+                <input type="hidden" name="label" value={label} />
+                <input type="hidden" name="memo" value={memo} />
+                <input type="hidden" name="message" value={message} />
+                <input
+                    type="hidden"
+                    name="reference"
+                    value={
+                        searchParams.get('reference') || decryptedURLparams.get('reference') || 'no reference passed'
+                    }
+                />
+                <input type="hidden" name="referenceNew" value={referenceNew} />
+                <input type="hidden" name="spltokenNew" value={spltokenNew} />
+                <button type="submit" ref={btnRef} hidden />
+            </form>
+        );
+    }
+    // you need to set redirect to true whenever you want to activate form submission and invoke the function postData() in NewRoute. take the next line and put it wherever you like.
+    redirect === false && setRedirect(true); //this line will invoke postData()
 
     const url = useMemo(
         () =>
@@ -272,6 +319,8 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 url,
                 reset,
                 generate,
+                postData,
+                redirect,
             }}
         >
             {children}
