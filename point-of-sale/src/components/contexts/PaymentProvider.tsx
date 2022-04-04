@@ -48,6 +48,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
     let decryptedURL = '';
 
     const [redirect, setRedirect] = useState(false);
+    const [GPCbtnSelfTrigger, setGPCbtnSelfTrigger] = useState(false); //monitor amount input source (url vs numPad)
 
     useEffect(() => {
         if (
@@ -69,7 +70,10 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
 
             const decryptedURLparams = new URLSearchParams(decryptedURL); //creating new URLsearchParams to allow searching the URL
 
-            if (decryptedURLparams.get('amount')) setAmount(new BigNumber(Number(decryptedURLparams.get('amount')))); //assigning value if exists
+            if (decryptedURLparams.get('amount')) {
+                setAmount(new BigNumber(Number(decryptedURLparams.get('amount')))); //assigning value if exists
+                searchParams.get('amount') != '0' && setGPCbtnSelfTrigger(true); //set GPC "Generate payment code" self trigger to true in case the amount is generated through the url
+            }
             setMessage(decryptedURLparams.get('message') || undefined); //assigning value if exists
             setMemo(decryptedURLparams.get('memo') || undefined); //assigning value if exists
             setRecipient1(decryptedURLparams.get('recipient1') || undefined); //assigning value if exists
@@ -80,7 +84,10 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
             setSpltokenNew(decryptedURLparams.get('spl-token') || undefined); //assigning value if exists
         } else {
             //url is not encrypted
-            if (searchParams.get('amount')) setAmount(new BigNumber(Number(searchParams.get('amount')))); //assigning value if exists
+            if (searchParams.get('amount')) {
+                setAmount(new BigNumber(Number(searchParams.get('amount')))); //assigning value if exists
+                searchParams.get('amount') != '0' && setGPCbtnSelfTrigger(true); //set GPC "Generate payment code" self trigger to true in case the amount is generated through the url
+            }
             setMessage(searchParams.get('message') || undefined); //assigning value if exists
             setMemo(searchParams.get('memo') || undefined); //assigning value if exists
         }
@@ -125,7 +132,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
         );
     }
     // you need to set redirect to true whenever you want to activate form submission and invoke the function postData() in NewRoute. take the next line and put it wherever you like.
-    redirect === false && setRedirect(true); //this line will invoke postData()
+    //redirect === false && setRedirect(true); //this line will invoke postData()
 
     const url = useMemo(
         () =>
@@ -321,6 +328,7 @@ export const PaymentProvider: FC<PaymentProviderProps> = ({ children }) => {
                 generate,
                 postData,
                 redirect,
+                GPCbtnSelfTrigger,
             }}
         >
             {children}

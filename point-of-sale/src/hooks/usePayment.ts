@@ -29,6 +29,7 @@ export interface PaymentContextState {
     generate(): void;
     postData: Function;
     redirect: boolean;
+    GPCbtnSelfTrigger: boolean;
 }
 
 export const PaymentContext = createContext<PaymentContextState>({} as PaymentContextState);
